@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id'])) {
 
 if (($_SESSION['user_role'] ?? '') !== 'admin') {
     http_response_code(403);
-    exit('Admin access one.');
+    exit('Administrator access required.');
 }
 
 require_once __DIR__ . '/../config/database.php';
@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
     if (!hash_equals($_SESSION['csrf_token'], $token)) {
-        $message = 'Request eka validate karanna bari una. Page eka refresh karala aye try karanna.';
+        $message = 'Unable to validate the request. Refresh the page and try again.';
     } elseif (!$bookingId || !in_array($action, ['confirm', 'cancel'], true)) {
         $message = 'Invalid request.';
     } elseif ($action === 'cancel') {
@@ -46,8 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $cancelStmt->execute([$bookingId]);
 
         $message = $cancelStmt->rowCount() === 1
-            ? 'Booking eka cancel kala.'
-            : 'Cancel karanna puluwan booking ekak hambune naha.';
+            ? 'Booking cancelled.'
+            : 'No cancellable booking was found.';
     } else {
         try {
             $pdo->beginTransaction();
@@ -64,9 +64,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (!$booking) {
                 $pdo->rollBack();
-                $message = 'Confirm karanna pending booking ekak hambune naha.';
+                $message = 'No pending booking was found to confirm.';
             } else {
-                // Same room eke confirmations ekawara ekin eka process karanawa.
+                // Lock the room row to serialize confirmations for the same room.
                 $roomStmt = $pdo->prepare(
                     'SELECT room_status FROM rooms WHERE room_id = ? FOR UPDATE'
                 );
@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if ($roomStatus !== 'active') {
                     $pdo->rollBack();
-                    $message = 'Me room eka active nisa confirm karanna ba.';
+                    $message = 'This room is inactive and cannot be confirmed.';
                 } else {
                     $conflictStmt = $pdo->prepare(
                         "SELECT COUNT(*)
@@ -95,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     if ((int)$conflictStmt->fetchColumn() > 0) {
                         $pdo->rollBack();
-                        $message = 'Dates overlap wena confirmed booking ekak thiyenawa.';
+                        $message = 'Another confirmed booking overlaps these dates.';
                     } else {
                         $confirmStmt = $pdo->prepare(
                             "UPDATE bookings
@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $confirmStmt->execute([$bookingId]);
 
                         $pdo->commit();
-                        $message = 'Booking eka confirm kala.';
+                        $message = 'Booking confirmed.';
                     }
                 }
             }
@@ -115,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $pdo->rollBack();
             }
 
-            $message = 'Booking eka update karaddi error ekak una.';
+            $message = 'An error occurred while updating the booking.';
         }
     }
 }
@@ -156,7 +156,7 @@ require __DIR__ . '/../includes/navigation.php';
         <?php endif; ?>
 
         <?php if (!$bookings): ?>
-            <p>Thama booking requests naha.</p>
+            <p>There are no booking requests yet.</p>
         <?php else: ?>
             <div class="table-wrap">
                 <table class="booking-table">

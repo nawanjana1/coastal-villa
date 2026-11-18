@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $error = 'Email hari password hari waradi.';
+    $error = 'The email address or password is incorrect.';
 }
 
 function escape($value)
@@ -54,7 +54,7 @@ function escape($value)
         <h1>Guest Login</h1>
 
         <?php if (isset($_GET['registered'])): ?>
-            <p>Registration success! Dan login wenna.</p>
+            <p>Registration successful. Please log in now.</p>
         <?php endif; ?>
 
         <?php if ($error !== ''): ?>
@@ -73,7 +73,7 @@ function escape($value)
             <button type="submit">Login</button>
         </form>
 
-        <p>Account ekak nadda? <a href="register.php">Register</a></p>
+        <p>Don't have an account? <a href="register.php">Register</a></p>
     </main>
 </body>
 </html>

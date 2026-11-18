@@ -56,3 +56,8 @@ Guest:
 I used OpenAI ChatGPT as a learning and coding support tool to understand
 requirements, plan features, and review implementation steps. I reviewed,
 adapted, and tested the project code and can explain the submitted work.
+
+## Image Credits
+
+The illustrative room and villa photos and their source links are listed in [ssets/images/CREDITS.md](assets/images/CREDITS.md).
+

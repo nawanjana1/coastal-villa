@@ -29,7 +29,7 @@ if (bookingForm) {
 
     function updateEstimate() {
         if (!bookingCheckIn.value || !bookingCheckOut.value) {
-            estimate.textContent = 'Dates select kalama estimated cost eka pennai.';
+            estimate.textContent = 'Select your stay dates to see the estimated cost.';
             return;
         }
 
@@ -38,7 +38,7 @@ if (bookingForm) {
         const nights = (end - start) / (1000 * 60 * 60 * 24);
 
         if (nights < 1) {
-            estimate.textContent = 'Check-out date eka check-in date ekata passe thora ganna.';
+            estimate.textContent = 'Choose a check-out date after the check-in date.';
             return;
         }
 
@@ -53,7 +53,6 @@ if (bookingForm) {
     updateEstimate();
 }
 
-
 const registrationForm = document.querySelector('#registration-form');
 
 if (registrationForm) {
@@ -63,24 +62,44 @@ if (registrationForm) {
             .querySelector('#contact_number').value.trim();
         const password = registrationForm
             .querySelector('#password').value;
-
         const phonePattern = /^\+?[0-9\s()-]{7,20}$/;
 
         if (!name) {
             event.preventDefault();
-            alert('Name eka enter karanna.');
+            alert('Please enter your name.');
             return;
         }
 
         if (!phonePattern.test(phone)) {
             event.preventDefault();
-            alert('Valid contact number ekak enter karanna.');
+            alert('Please enter a valid contact number.');
             return;
         }
 
         if (password.length < 8) {
             event.preventDefault();
-            alert('Password eka at least characters 8k wenna ona.');
+            alert('Password must be at least 8 characters long.');
         }
     });
 }
+
+const revealItems = document.querySelectorAll('.reveal');
+if (revealItems.length) {
+    document.body.classList.add('js-ready');
+
+    if ('IntersectionObserver' in window) {
+        const revealObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.12 });
+
+        revealItems.forEach((item) => revealObserver.observe(item));
+    } else {
+        revealItems.forEach((item) => item.classList.add('is-visible'));
+    }
+}
+

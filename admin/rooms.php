@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id'])) {
 
 if (($_SESSION['user_role'] ?? '') !== 'admin') {
     http_response_code(403);
-    exit('Admin access one.');
+    exit('Administrator access required.');
 }
 
 require_once __DIR__ . '/../config/database.php';
@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
     if (!hash_equals($_SESSION['csrf_token'], $token)) {
-        $errors[] = 'Request eka validate karanna bari una. Page eka refresh karala aye try karanna.';
+        $errors[] = 'Unable to validate the request. Refresh the page and try again.';
     } elseif (in_array($action, ['deactivate', 'activate'], true)) {
         $roomId = filter_var($_POST['room_id'] ?? '', FILTER_VALIDATE_INT);
 
@@ -60,19 +60,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($price === false || $price <= 0) {
-            $errors[] = 'Price eka zero-ta wada wadi number ekak wenna ona.';
+            $errors[] = 'Price must be a number greater than zero.';
         }
 
         if ($maxGuests === false || $maxGuests < 1 || $maxGuests > 20) {
-            $errors[] = 'Maximum guests ganana 1 saha 20 athara wenna ona.';
+            $errors[] = 'Maximum guests must be between 1 and 20.';
         }
 
         if (!in_array($status, ['active', 'inactive'], true)) {
-            $errors[] = 'Room status eka invalid.';
+            $errors[] = 'Invalid room status.';
         }
 
         if ($action === 'edit' && !$roomId) {
-            $errors[] = 'Edit karanna room ekak select karala naha.';
+            $errors[] = 'No room was selected for editing.';
         }
 
         if (!$errors) {
@@ -144,7 +144,7 @@ require __DIR__ . '/../includes/navigation.php';
         <h1>Manage Rooms</h1>
 
         <?php if (isset($_GET['saved'])): ?>
-            <p>Room details save kala.</p>
+            <p>Room details saved.</p>
         <?php endif; ?>
 
         <?php foreach ($errors as $error): ?>

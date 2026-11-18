@@ -19,9 +19,10 @@ function navEscape($value)
     <nav>
         <a href="<?= navEscape($basePath) ?>rooms.php">Rooms</a>
         <a href="<?= navEscape($basePath) ?>availability.php">Availability</a>
+        <a href="<?= navEscape($basePath) ?>index.php#contact">Contact</a>
 
         <?php if (isset($_SESSION['user_id'])): ?>
-            <span>Ayubowan, <?= navEscape($_SESSION['user_name'] ?? '') ?></span>
+            <span>Welcome, <?= navEscape($_SESSION['user_name'] ?? '') ?></span>
 
             <?php if (($_SESSION['user_role'] ?? '') === 'admin'): ?>
                 <a href="<?= navEscape($adminPath) ?>bookings.php">Manage Bookings</a>
@@ -37,3 +38,5 @@ function navEscape($value)
         <?php endif; ?>
     </nav>
 </header>
+
+

@@ -14,19 +14,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
 
     if ($name === '') {
-        $errors[] = 'Name eka enter karanna.';
+        $errors[] = 'Please enter your name.';
     }
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = 'Valid email address ekak enter karanna.';
+        $errors[] = 'Please enter a valid email address.';
     }
 
     if ($contactNumber === '') {
-        $errors[] = 'Contact number eka enter karanna.';
+        $errors[] = 'Please enter your contact number.';
     }
 
     if (strlen($password) < 8) {
-        $errors[] = 'Password eka at least characters 8k wenna ona.';
+        $errors[] = 'Password must be at least 8 characters long.';
     }
 
     if (!$errors) {
@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $check->execute([$email]);
 
         if ($check->fetch()) {
-            $errors[] = 'Me email address eka kalin register karala.';
+            $errors[] = 'This email address is already registered.';
         } else {
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 

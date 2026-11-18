@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $bookingId = filter_input(INPUT_POST, 'booking_id', FILTER_VALIDATE_INT);
 
     if (!hash_equals($_SESSION['csrf_token'], $token)) {
-        $message = 'Request eka validate karanna bari una. Page eka refresh karala aye try karanna.';
+        $message = 'Unable to validate the request. Refresh the page and try again.';
     } elseif ($bookingId) {
         $cancelStmt = $pdo->prepare(
             "UPDATE bookings
@@ -36,9 +36,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $cancelStmt->execute([$bookingId, $_SESSION['user_id']]);
 
         if ($cancelStmt->rowCount() === 1) {
-            $message = 'Pending booking eka cancel kala.';
+            $message = 'Pending booking cancelled.';
         } else {
-            $message = 'Me booking eka cancel karanna ba. Eya pending da kiyala balanna.';
+            $message = 'This booking cannot be cancelled. Only pending bookings can be cancelled.';
         }
     }
 }
@@ -79,8 +79,8 @@ require __DIR__ . '/includes/navigation.php';
         <?php endif; ?>
 
         <?php if (!$bookings): ?>
-            <p>Oyā thama booking request ekak dala naha.</p>
-            <a href="availability.php">Rooms search karanna</a>
+            <p>You have not made any bookings yet.</p>
+            <a href="availability.php">Search rooms</a>
         <?php else: ?>
             <div class="room-grid">
                 <?php foreach ($bookings as $booking): ?>

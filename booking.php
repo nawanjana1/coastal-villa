@@ -37,7 +37,7 @@ $roomStmt->execute([$roomId]);
 $room = $roomStmt->fetch();
 
 if (!$room) {
-    exit('Room eka hoyaganna ba, nathnam active naha.');
+    exit('Room not found or inactive.');
 }
 
 $userStmt = $pdo->prepare(
@@ -57,16 +57,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $guests = filter_input(INPUT_POST, 'guests', FILTER_VALIDATE_INT);
 
     if (!validDate($checkIn) || $checkIn < date('Y-m-d')) {
-        $errors[] = 'Valid future check-in date ekak select karanna.';
+        $errors[] = 'Please select today or a future date for check-in.';
     }
 
     if (!validDate($checkOut) || $checkOut <= $checkIn) {
-        $errors[] = 'Check-out date eka check-in date ekata passe thiyenna ona.';
+        $errors[] = 'Check-out date must be after the check-in date.';
     }
 
     if ($guests === false || $guests < 1 || $guests > (int)$room['max_guests']) {
-        $errors[] = 'Me room ekata guests 1 idan '
-            . (int)$room['max_guests'] . ' dakwa select karanna.';
+        $errors[] = 'Choose between 1 and '
+            . (int)$room['max_guests'] . ' guests for this room.';
     }
 
     if (!$errors) {
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $availabilityStmt->execute([$roomId, $checkOut, $checkIn]);
 
         if ((int)$availabilityStmt->fetchColumn() > 0) {
-            $errors[] = 'Me dates walata room eka dan available naha.';
+            $errors[] = 'This room is no longer available for the selected dates.';
         }
     }
 
@@ -138,15 +138,15 @@ require __DIR__ . '/includes/navigation.php';
         <h1>Request a Booking</h1>
 
         <?php if (isset($_GET['success'])): ?>
-            <p>Booking request eka yawwa! Status eka Pending.</p>
-            <p><a href="my-bookings.php">My Bookings balanna</a></p>
+            <p>Booking request submitted. Status: Pending.</p>
+            <p><a href="my-bookings.php">View my bookings</a></p>
         <?php endif; ?>
 
         <article class="room-card">
             <h2><?= escape($room['room_name']) ?></h2>
             <p><?= escape($room['description']) ?></p>
             <p>Rs. <?= number_format((float)$room['price_per_night'], 2) ?> / night</p>
-            <p>Me room eke maximum guests: <?= (int)$room['max_guests'] ?></p>
+            <p>Maximum occupancy: <?= (int)$room['max_guests'] ?></p>
         </article>
 
         <h2>Guest details</h2>
@@ -179,10 +179,11 @@ require __DIR__ . '/includes/navigation.php';
                    min="1" max="<?= (int)$room['max_guests'] ?>"
                    value="<?= escape($guests) ?>" required><br><br>
 
-            <p id="booking-estimate">Dates select kalama estimated cost eka pennai.</p>
+            <p id="booking-estimate">Select your stay dates to see the estimated cost.</p>
 
             <button type="submit">Send Booking Request</button>
         </form>
     </main>
 </body>
 </html>
+

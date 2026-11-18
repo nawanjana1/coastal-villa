@@ -24,15 +24,15 @@ if ($searched) {
     $today = date('Y-m-d');
 
     if (!validDate($checkIn) || $checkIn < $today) {
-        $errors[] = 'Check-in date eka ada ho anagathaye date ekak wenna ona.';
+        $errors[] = 'Check-in date must be today or a future date.';
     }
 
     if (!validDate($checkOut) || $checkOut <= $checkIn) {
-        $errors[] = 'Check-out date eka check-in date ekata passe thiyenna ona.';
+        $errors[] = 'Check-out date must be after the check-in date.';
     }
 
     if ($guests === false || $guests < 1 || $guests > 10) {
-        $errors[] = 'Guests ganana 1 saha 10 athara enter karanna.';
+        $errors[] = 'Guest count must be between 1 and 10.';
     }
 
     if (!$errors) {
@@ -65,7 +65,6 @@ if ($searched) {
 
 $today = date('Y-m-d');
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -77,58 +76,74 @@ $today = date('Y-m-d');
 </head>
 <body>
     <?php
-$basePath = '';
-$adminArea = false;
-require __DIR__ . '/includes/navigation.php';
-?>
+    $basePath = '';
+    $adminArea = false;
+    require __DIR__ . '/includes/navigation.php';
+    ?>
 
     <main class="page-shell">
-        <h1>Check Room Availability</h1>
+        <div class="page-heading reveal">
+            <p class="hero-label">Plan a little escape</p>
+            <h1>Find a room for your dates</h1>
+            <p>Choose your dates and group size to see available rooms.</p>
+        </div>
 
         <?php foreach ($errors as $error): ?>
-            <p><?= escape($error) ?></p>
+            <p class="form-error"><?= escape($error) ?></p>
         <?php endforeach; ?>
 
-        <form method="get" action="availability.php" id="availability-form">
-            <label for="check_in">Check-in</label><br>
-            <input type="date" id="check_in" name="check_in"
-                   min="<?= escape($today) ?>"
-                   value="<?= escape($checkIn) ?>" required><br><br>
-
-            <label for="check_out">Check-out</label><br>
-            <input type="date" id="check_out" name="check_out"
-                   min="<?= escape($today) ?>"
-                   value="<?= escape($checkOut) ?>" required><br><br>
-
-            <label for="guests">Guests</label><br>
-            <input type="number" id="guests" name="guests"
-                   min="1" max="10"
-                   value="<?= escape($guests ?: 1) ?>" required><br><br>
-
-            <button type="submit">Search Rooms</button>
+        <form class="search-panel reveal" method="get" action="availability.php" id="availability-form">
+            <div>
+                <label for="check_in">Check-in</label>
+                <input type="date" id="check_in" name="check_in"
+                       min="<?= escape($today) ?>"
+                       value="<?= escape($checkIn) ?>" required>
+            </div>
+            <div>
+                <label for="check_out">Check-out</label>
+                <input type="date" id="check_out" name="check_out"
+                       min="<?= escape($today) ?>"
+                       value="<?= escape($checkOut) ?>" required>
+            </div>
+            <div>
+                <label for="guests">Guests</label>
+                <input type="number" id="guests" name="guests"
+                       min="1" max="10"
+                       value="<?= escape($guests ?: 1) ?>" required>
+            </div>
+            <button type="submit">Search rooms</button>
         </form>
 
         <?php if ($searched && !$errors): ?>
-            <h2>Available Rooms</h2>
+            <div class="page-heading reveal">
+                <p class="hero-label">Your stay options</p>
+                <h2>Available rooms</h2>
+            </div>
 
             <?php if (!$rooms): ?>
-                <p>Me dates walata matching rooms naha. Wena dates try karanna.</p>
+                <p>No rooms match these dates. Try different dates or guest numbers.</p>
             <?php else: ?>
                 <div class="room-grid">
                     <?php foreach ($rooms as $room): ?>
-                        <article class="room-card">
-                            <p class="room-type"><?= escape($room['room_type']) ?></p>
-                            <h2><?= escape($room['room_name']) ?></h2>
-                            <p><?= escape($room['description']) ?></p>
-                            <p><strong>Maximum guests:</strong>
-                                <?= escape($room['max_guests']) ?></p>
-                            <p class="room-price">
-                                Rs. <?= number_format((float)$room['price_per_night'], 2) ?>
-                                <small>/ night</small>
-                            </p>
-                            <a href="booking.php?room_id=<?= (int)$room['room_id'] ?>&amp;check_in=<?= escape($checkIn) ?>&amp;check_out=<?= escape($checkOut) ?>&amp;guests=<?= (int)$guests ?>">
-                                Choose this room
-                            </a>
+                        <?php $imageName = $room['image_name'] ?: 'villa-hero.jpg'; ?>
+                        <article class="room-card reveal">
+                            <img class="room-card__image"
+                                 src="assets/images/<?= escape(basename($imageName)) ?>"
+                                 alt="<?= escape($room['room_name']) ?> room"
+                                 loading="lazy">
+                            <div class="room-card__body">
+                                <p class="room-type"><?= escape($room['room_type']) ?></p>
+                                <h2><?= escape($room['room_name']) ?></h2>
+                                <p><?= escape($room['description']) ?></p>
+                                <p><strong>Maximum guests:</strong> <?= (int)$room['max_guests'] ?></p>
+                                <p class="room-price">
+                                    Rs. <?= number_format((float)$room['price_per_night'], 2) ?>
+                                    <small>/ night</small>
+                                </p>
+                                <a class="card-link" href="booking.php?room_id=<?= (int)$room['room_id'] ?>&amp;check_in=<?= escape($checkIn) ?>&amp;check_out=<?= escape($checkOut) ?>&amp;guests=<?= (int)$guests ?>">
+                                    Choose this room
+                                </a>
+                            </div>
                         </article>
                     <?php endforeach; ?>
                 </div>
@@ -137,3 +152,4 @@ require __DIR__ . '/includes/navigation.php';
     </main>
 </body>
 </html>
+
